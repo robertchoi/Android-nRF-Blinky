@@ -24,7 +24,7 @@
 <resources>
 
 	<!-- Base theme colors -->
-	<color name="colorPrimary">@color/nordicBlue</color>
+	<color name="colorPrimary">#11132f</color>
 	<color name="colorOnPrimary">@color/white</color>
 	<color name="colorAccentOnPrimary">@color/white</color>
 	<color name="colorSecondary">@color/nordicLake</color>
