@@ -38,9 +38,9 @@
 	<androidx.appcompat.widget.AppCompatImageView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:background="@color/colorNordicLogoTop"
 		android:fitsSystemWindows="true"
 		android:scaleType="centerCrop"
-		android:background="@color/colorNordicLogoTop"
-		app:srcCompat="@drawable/nordic_logo"/>
+		app:srcCompat="@drawable/splash" />
 	
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
