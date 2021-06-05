@@ -3,9 +3,13 @@ package no.nordicsemi.android.blinky;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -19,12 +23,34 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final MaterialToolbar toolbar = findViewById(R.id.toolbarMain);
-        /* toolbar.setTitle("LUHELO"); */
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
+        Button bt1 = (Button) findViewById(R.id.bt1);
+        bt1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+            }
+        });
 
-        getSupportActionBar().setIcon(R.drawable.ab0);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        Button bt2 = (Button) findViewById(R.id.bt2);
+        bt2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+            }
+        });
+
+        Button bt3 = (Button) findViewById(R.id.bt3);
+        bt3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Do something in response to button click
+                Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+
 
     }
 
