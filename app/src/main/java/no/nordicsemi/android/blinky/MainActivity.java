@@ -5,10 +5,14 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,6 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import no.nordicsemi.android.ble.livedata.state.ConnectionState;
 import no.nordicsemi.android.blinky.adapter.DiscoveredBluetoothDevice;
@@ -31,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
 
     private BlinkyViewModel viewModel;
     boolean deviceConnect  = FALSE;
+
+    private GpsTracker gpsTracker;
+
+    private static final int GPS_ENABLE_REQUEST_CODE = 2001;
+    private static final int PERMISSIONS_REQUEST_CODE = 100;
+    String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +112,33 @@ public class MainActivity extends AppCompatActivity {
                 // Do something in response to button click
                 MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alram);
                 mediaPlayer.start(); // no need to call prepare(); create() does that for you
+
+
+                gpsTracker = new GpsTracker(MainActivity.this);
+
+                double latitude = gpsTracker.getLatitude();
+                double longitude = gpsTracker.getLongitude();
+
+                String address = getCurrentAddress(latitude, longitude);
+                //textview_address.setText(address);
+
+                Toast.makeText(MainActivity.this, "현재위치 \n위도 " + latitude + "\n경도 " + longitude, Toast.LENGTH_LONG).show();
+
+                //LUHERO 위급상황 알림 : http://maps.google.com/?q=37.4730555,127.1003179
+
+
+                //String sms = "LUHERO 위급상황 알림 :" + latitude + "," + longitude;
+                String sms = "LUHERO 위급상황 알림 : http://maps.google.com/?q="+latitude + "," + longitude;
+
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage("+01027420631", null, sms, null, null);
+                    Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -121,6 +162,39 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+    }
+
+
+    public String getCurrentAddress( double latitude, double longitude) {
+
+        //지오코더... GPS를 주소로 변환
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(
+                    latitude,
+                    longitude,
+                    7);
+        } catch (IOException ioException) {
+            //네트워크 문제
+            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+            return "지오코더 서비스 사용불가";
+        } catch (IllegalArgumentException illegalArgumentException) {
+            Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
+            return "잘못된 GPS 좌표";
+
+        }
+        if (addresses == null || addresses.size() == 0) {
+            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            return "주소 미발견";
+
+        }
+
+        Address address = addresses.get(0);
+        return address.getAddressLine(0).toString()+"\n";
 
     }
 
