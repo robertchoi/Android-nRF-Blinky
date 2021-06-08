@@ -45,8 +45,10 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:progress_background_color="#00ffffff"
             app:progress_stroke_width="20dp"
-            app:progress_text_size="30sp"
+            app:progress_text_color="#ffffffff"
+            app:progress_text_size="40sp"
             app:style="solid_line" />
 
         <Button
@@ -81,10 +83,10 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="217dp"
-            android:layout_marginTop="247dp"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="241dp"
             android:text="연결끊김"
-            android:textColor="?android:attr/colorPressedHighlight"
+            android:textColor="#ffffffff"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

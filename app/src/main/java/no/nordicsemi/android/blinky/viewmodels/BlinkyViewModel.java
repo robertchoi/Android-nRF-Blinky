@@ -91,7 +91,7 @@ public class BlinkyViewModel extends AndroidViewModel {
 	/**
 	 * Disconnect from peripheral.
 	 */
-	private void disconnect() {
+	public void disconnect() {
 		device = null;
 		blinkyManager.disconnect().enqueue();
 	}

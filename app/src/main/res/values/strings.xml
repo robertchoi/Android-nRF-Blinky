@@ -50,9 +50,8 @@
     <string name="bluetooth_disabled_info">The Bluetooth adapter is turned off. Click the button below to enable it.</string>
     <string name="bluetooth_disabled_action">Enable</string>
 
-    <string name="blinky_guide_title">CAN\'T SEE YOUR BLINKY?</string>
-    <string name="blinky_guide_info">1. Make sure the DK is <b>turned on</b> and is connected to a power source using a micro USB cable or a coin cell is plugged in.
-        \n\n2. Make sure the <b>ble_app_blinky</b> firmware and SoftDevice are flashed.</string>
+    <string name="blinky_guide_title">""</string>
+    <string name="blinky_guide_info">""</string>
     <string name="blinky_guide_location_info">3. Location is turned off. Some Android phones require it enabled in order to scan for Bluetooth LE devices.
 		If you are sure your Blinky is advertising and it doesn\'t show up here, click the button below to enable Location.</string>
     <string name="blinky_guide_location_action">Enable</string>
@@ -65,4 +64,28 @@
 
     <string name="state_connecting">Connecting…</string>
     <string name="state_initializing">Initializing…</string>
+    <string name="saved_p1_name">p1_name</string>
+    <string name="saved_p1_phone">p1_phone</string>
+
+    <string name="saved_p2_name">p2_name</string>
+    <string name="saved_p2_phone">p2_phone</string>
+
+    <string name="saved_p3_name">p3_name</string>
+    <string name="saved_p3_phone">p3_phone</string>
+
+    <string name="saved_p4_name">p4_name</string>
+    <string name="saved_p4_phone">p4_phone</string>
+
+    <string name="saved_p5_name">p5_name</string>
+    <string name="saved_p5_phone">p5_phone</string>
+
+    <string name="saved_p6_name">p6_name</string>
+    <string name="saved_p6_phone">p6_phone</string>
+
+    <string name="preset1">preset1</string>
+    <string name="preset2">preset2</string>
+    <string name="preset3">preset3</string>
+    <string name="preset4">preset4</string>
+    <string name="preset5">preset5</string>
+    <string name="preset6">preset6</string>
 </resources>
