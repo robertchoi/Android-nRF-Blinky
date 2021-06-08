@@ -21,7 +21,7 @@
   -->
 
 <resources>
-    <string name="app_name">LUHERO</string>
+    <string name="app_name">LUHERO PRO</string>
     <string name="feature_name">BLINKY</string>
 
     <string name="menu_filter">Filter</string>
