@@ -136,6 +136,7 @@ public class ScannerActivity extends AppCompatActivity implements DevicesAdapter
         final Intent controlBlinkIntent = new Intent(this, MainActivity.class);
         controlBlinkIntent.putExtra(BlinkyActivity.EXTRA_DEVICE, device);
         startActivity(controlBlinkIntent);
+        finish();
     }
 
     @Override

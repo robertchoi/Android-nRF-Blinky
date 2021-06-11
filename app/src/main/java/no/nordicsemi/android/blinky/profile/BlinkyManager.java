@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.blinky.profile;
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -38,6 +39,8 @@ import java.util.UUID;
 
 import no.nordicsemi.android.ble.data.Data;
 import no.nordicsemi.android.ble.livedata.ObservableBleManager;
+import no.nordicsemi.android.blinky.ContactActivity;
+import no.nordicsemi.android.blinky.MainActivity;
 import no.nordicsemi.android.blinky.profile.callback.BlinkyButtonDataCallback;
 import no.nordicsemi.android.blinky.profile.callback.BlinkyLedDataCallback;
 import no.nordicsemi.android.blinky.profile.data.BlinkyLED;
@@ -55,11 +58,14 @@ public class BlinkyManager extends ObservableBleManager {
 
 	private final MutableLiveData<Boolean> ledState = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> buttonState = new MutableLiveData<>();
+	private final MutableLiveData<String> buttonLevel = new MutableLiveData<>();
 
 	private BluetoothGattCharacteristic buttonCharacteristic, ledCharacteristic;
 	private LogSession logSession;
 	private boolean supported;
 	private boolean ledOn;
+
+
 
 	public BlinkyManager(@NonNull final Context context) {
 		super(context);
@@ -71,6 +77,10 @@ public class BlinkyManager extends ObservableBleManager {
 
 	public final LiveData<Boolean> getButtonState() {
 		return buttonState;
+	}
+
+	public final LiveData<String> getButtonLevel(){
+		return buttonLevel;
 	}
 
 	@NonNull
@@ -119,6 +129,7 @@ public class BlinkyManager extends ObservableBleManager {
 		public void onInvalidDataReceived(@NonNull final BluetoothDevice device,
 										  @NonNull final Data data) {
 			log(Log.WARN, "Invalid data received: " + data);
+			buttonLevel.setValue(data.toString());
 		}
 	};
 

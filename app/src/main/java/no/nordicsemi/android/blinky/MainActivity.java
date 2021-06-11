@@ -3,6 +3,7 @@ package no.nordicsemi.android.blinky;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.BindView;
 import no.nordicsemi.android.ble.livedata.state.ConnectionState;
 import no.nordicsemi.android.blinky.adapter.DiscoveredBluetoothDevice;
 import no.nordicsemi.android.blinky.viewmodels.BlinkyViewModel;
@@ -38,6 +40,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 import com.dinuscxj.progressbar.CircleProgressBar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_DEVICE = "no.nordicsemi.android.blinky.EXTRA_DEVICE";
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
+    public String batteryLevel;
+    public boolean alraming = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         //content.setVisibility(View.VISIBLE);
                         //onConnectionStateChanged(true);
                         tv2.setText("연결됨");
-                        mCustomProgressBar.setProgress(90);
+                        //mCustomProgressBar.setProgress(90);
 
                         break;
                     case DISCONNECTED:
@@ -115,6 +121,32 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             });
+
+            viewModel.getButtonState().observe(this,
+                    pressed -> {
+                        if(pressed){
+                            //Toast.makeText(MainActivity.this, "비상버", Toast.LENGTH_LONG).show();
+
+
+                            if(alraming == false){
+                                alraming = true;
+                                alramProcess();
+                                alraming = false;
+                            }
+
+                        }
+                    });
+
+            viewModel.getButtonLevel().observe(this,
+                    buttonLevel -> {
+                        //if(buttonLevel.)
+                        {
+                            String setString = buttonLevel.substring(5);
+                            int setValue = Integer.parseInt(setString,16);
+                            mCustomProgressBar.setProgress(setValue);
+                            //Toast.makeText(MainActivity.this, "버튼 ", Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
 
 
@@ -126,115 +158,7 @@ public class MainActivity extends AppCompatActivity {
         Button bt1 = (Button) findViewById(R.id.bt1);
         bt1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Do something in response to button click
-                MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alram);
-                mediaPlayer.start(); // no need to call prepare(); create() does that for you
-
-
-                gpsTracker = new GpsTracker(MainActivity.this);
-
-                double latitude = gpsTracker.getLatitude();
-                double longitude = gpsTracker.getLongitude();
-
-                String address = getCurrentAddress(latitude, longitude);
-                //textview_address.setText(address);
-
-                Toast.makeText(MainActivity.this, "현재위치 \n위도 " + latitude + "\n경도 " + longitude, Toast.LENGTH_LONG).show();
-
-                //LUHERO 위급상황 알림 : http://maps.google.com/?q=37.4730555,127.1003179
-
-
-                //String sms = "LUHERO 위급상황 알림 :" + latitude + "," + longitude;
-                String sms = "LUHERO 위급상황 알림 : http://maps.google.com/?q="+latitude + "," + longitude;
-
-
-                SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
-                String pP1 = sharedPref.getString(getString(R.string.saved_p1_phone), "");
-                String pP2 = sharedPref.getString(getString(R.string.saved_p2_phone), "");
-                String pP3 = sharedPref.getString(getString(R.string.saved_p3_phone), "");
-                String pP4 = sharedPref.getString(getString(R.string.saved_p4_phone), "");
-                String pP5 = sharedPref.getString(getString(R.string.saved_p5_phone), "");
-                String pP6 = sharedPref.getString(getString(R.string.saved_p6_phone), "");
-
-                if(pP1.equals("")){
-
-                } else {
-                    try {
-                        //전송
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(pP1, null, sms, null, null);
-                        Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "SMS1 faild, please try again later!", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-                if(pP2.equals("")){
-
-                } else {
-                    try {
-                        //전송
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(pP2, null, sms, null, null);
-                        Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "SMS2 faild, please try again later!", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-                if(pP3.equals("")){
-
-                } else {
-                    try {
-                        //전송
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(pP3, null, sms, null, null);
-                        Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "SMS3 faild, please try again later!", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-                if(pP4.equals("")){
-
-                } else {
-                    try {
-                        //전송
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(pP4, null, sms, null, null);
-                        Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "SMS4 faild, please try again later!", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-                if(pP5.equals("")){
-
-                } else {
-                    try {
-                        //전송
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(pP5, null, sms, null, null);
-                        Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "SMS5 faild, please try again later!", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-                if(pP6.equals("")){
-
-                } else {
-                    try {
-                        //전송
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(pP6, null, sms, null, null);
-                        Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "SMS6 faild, please try again later!", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }
-
+                alramProcess();
             }
         });
 
@@ -261,7 +185,117 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void alramProcess(){
+        // Do something in response to button click
+        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alram);
+        mediaPlayer.start(); // no need to call prepare(); create() does that for you
 
+
+        gpsTracker = new GpsTracker(MainActivity.this);
+
+        double latitude = gpsTracker.getLatitude();
+        double longitude = gpsTracker.getLongitude();
+
+        String address = getCurrentAddress(latitude, longitude);
+        //textview_address.setText(address);
+
+        //Toast.makeText(MainActivity.this, "현재위치 \n위도 " + latitude + "\n경도 " + longitude, Toast.LENGTH_LONG).show();
+
+        //LUHERO 위급상황 알림 : http://maps.google.com/?q=37.4730555,127.1003179
+
+
+        //String sms = "LUHERO 위급상황 알림 :" + latitude + "," + longitude;
+        String sms = "LUHERO 위급상황 알림 : http://maps.google.com/?q="+latitude + "," + longitude;
+
+
+        SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        String pP1 = sharedPref.getString(getString(R.string.saved_p1_phone), "");
+        String pP2 = sharedPref.getString(getString(R.string.saved_p2_phone), "");
+        String pP3 = sharedPref.getString(getString(R.string.saved_p3_phone), "");
+        String pP4 = sharedPref.getString(getString(R.string.saved_p4_phone), "");
+        String pP5 = sharedPref.getString(getString(R.string.saved_p5_phone), "");
+        String pP6 = sharedPref.getString(getString(R.string.saved_p6_phone), "");
+
+        if(pP1.equals("")){
+
+        } else {
+            try {
+                //전송
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(pP1, null, sms, null, null);
+                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS1 faild, please try again later!", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
+        if(pP2.equals("")){
+
+        } else {
+            try {
+                //전송
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(pP2, null, sms, null, null);
+                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS2 faild, please try again later!", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
+        if(pP3.equals("")){
+
+        } else {
+            try {
+                //전송
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(pP3, null, sms, null, null);
+                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS3 faild, please try again later!", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
+        if(pP4.equals("")){
+
+        } else {
+            try {
+                //전송
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(pP4, null, sms, null, null);
+                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS4 faild, please try again later!", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
+        if(pP5.equals("")){
+
+        } else {
+            try {
+                //전송
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(pP5, null, sms, null, null);
+                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS5 faild, please try again later!", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
+        if(pP6.equals("")){
+
+        } else {
+            try {
+                //전송
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(pP6, null, sms, null, null);
+                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS6 faild, please try again later!", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     public String getCurrentAddress( double latitude, double longitude) {
 
@@ -323,7 +357,11 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu3:
 
                 moveTaskToBack(true);						        // 태스크를 백그라운드로 이동
-                finishAndRemoveTask();						                // 액티비티 종료 + 태스크 리스트에서 지우기
+                //finishAndRemoveTask();						                // 액티비티 종료 + 태스크 리스트에서 지우기
+
+                ActivityCompat.finishAffinity(this);
+                System.runFinalizersOnExit(true);
+                System.exit(0);
                 android.os.Process.killProcess(android.os.Process.myPid());	// 앱 프로세스 종료
                 break;
         }
