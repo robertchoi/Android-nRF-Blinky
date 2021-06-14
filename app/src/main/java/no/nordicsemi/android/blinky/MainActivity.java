@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     NotificationManager manager;
     NotificationCompat.Builder builder;
     private static String CHANNEL_ID = "channel1";
-    private static String CHANEL_NAME = "Channel1";
+    private static String CHANEL_NAME = "luhero_disconnect";
 
 
     private BlinkyViewModel viewModel;
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case DISCONNECTED:
                         SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
-                        int p2 = sharedPref.getInt(getString(R.string.preset2), 0);
+                        int p2 = sharedPref.getInt(getString(R.string.preset2), 1);
 
                         if(p2 == 1) {
                             showNoti();

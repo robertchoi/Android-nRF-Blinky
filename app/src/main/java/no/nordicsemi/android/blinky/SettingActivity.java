@@ -48,13 +48,13 @@ public class SettingActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        p1 = sharedPref.getInt(getString(R.string.preset1), 0);
+        p1 = sharedPref.getInt(getString(R.string.preset1), 1);
         p11 = sharedPref.getInt("preset11", 5);
         p12 = sharedPref.getInt("preset12", 2);
-        p2 = sharedPref.getInt(getString(R.string.preset2), 0);
-        p3 = sharedPref.getInt(getString(R.string.preset3), 0);
-        p4 = sharedPref.getInt(getString(R.string.preset4), 0);
-        p5 = sharedPref.getInt(getString(R.string.preset5), 0);
+        p2 = sharedPref.getInt(getString(R.string.preset2), 1);
+        p3 = sharedPref.getInt(getString(R.string.preset3), 1);
+        p4 = sharedPref.getInt(getString(R.string.preset4), 1);
+        p5 = sharedPref.getInt(getString(R.string.preset5), 1);
 
 
         CheckBox cb1 = findViewById(R.id.checkBox1);
