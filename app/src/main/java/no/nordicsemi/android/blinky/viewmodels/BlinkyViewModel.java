@@ -87,7 +87,7 @@ public class BlinkyViewModel extends AndroidViewModel {
 		if (device != null) {
 			blinkyManager.connect(device)
 					.retry(3, 100)
-					.useAutoConnect(false)
+					.useAutoConnect(true)
 					.enqueue();
 		}
 	}
