@@ -4,17 +4,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.view.Menu;
@@ -45,6 +52,12 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_DEVICE = "no.nordicsemi.android.blinky.EXTRA_DEVICE";
 
+    NotificationManager manager;
+    NotificationCompat.Builder builder;
+    private static String CHANNEL_ID = "channel1";
+    private static String CHANEL_NAME = "Channel1";
+
+
     private BlinkyViewModel viewModel;
     boolean deviceConnect  = FALSE;
 
@@ -58,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     public String batteryLevel;
     public boolean alraming = false;
 
+    DiscoveredBluetoothDevice device;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final Intent intent = getIntent();
-        final DiscoveredBluetoothDevice device = intent.getParcelableExtra(EXTRA_DEVICE);
+        device = intent.getParcelableExtra(EXTRA_DEVICE);
 
 
 
@@ -106,6 +121,12 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case DISCONNECTED:
+                        SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+                        int p2 = sharedPref.getInt(getString(R.string.preset2), 0);
+
+                        if(p2 == 1) {
+                            showNoti();
+                        }
                         if (state instanceof ConnectionState.Disconnected) {
                             tv2.setText("연결끊김");
                             mCustomProgressBar.setProgress(0);
@@ -367,5 +388,82 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    // Handles various events fired by the Service.
+    // ACTION_GATT_CONNECTED: connected to a GATT server.
+    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
+    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
+    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
+    //                        or notification operations.
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+/*            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // Show all the supported services and characteristics on the user interface.
+                //displayGattServices(mBluetoothLeService.getSupportedGattServices());
+            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }*/
+        }
+    };
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+//        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+//        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+//        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+//        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (device != null) {
+            viewModel.connect(device);
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //unbindService(mServiceConnection);
+        //mBluetoothLeService = null;
+    }
+
+    public void showNoti(){
+        builder = null;
+        manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        //버전 오레오 이상일 경우
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            manager.createNotificationChannel( new NotificationChannel(CHANNEL_ID, CHANEL_NAME, NotificationManager.IMPORTANCE_DEFAULT) );
+            builder = new NotificationCompat.Builder(this,CHANNEL_ID);
+            //하위 버전일 경우
+        }else{
+            builder = new NotificationCompat.Builder(this);
+        }
+        //알림창 제목
+        builder.setContentTitle("LUHERO PRO");
+        //알림창 메시지
+        builder.setContentText("연결이 끊어졌습니다.");
+        //알림창 아이콘
+        builder.setSmallIcon(R.drawable.icon);
+        Notification notification = builder.build();
+        //알림창 실행
+        manager.notify(1,notification);
+    }
+
+
 
 }
