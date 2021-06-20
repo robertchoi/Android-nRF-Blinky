@@ -48,6 +48,8 @@ import no.nordicsemi.android.log.LogContract;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 
+import static java.lang.Boolean.TRUE;
+
 public class BlinkyManager extends ObservableBleManager {
 	/** Nordic Blinky Service UUID. */
 	public final static UUID LBS_UUID_SERVICE = UUID.fromString("00001523-1212-efde-1523-785feabcd123");
@@ -123,8 +125,8 @@ public class BlinkyManager extends ObservableBleManager {
 										 final boolean pressed) {
 			log(LogContract.Log.Level.APPLICATION, "Button " + (pressed ? "pressed" : "released"));
 			buttonState.setValue(pressed);
-
-			((MainActivity)MainActivity.context_main).btStatus = pressed;
+			if(pressed == TRUE)
+				((MainActivity)MainActivity.context_main).btStatus = pressed;
 		}
 
 		@Override

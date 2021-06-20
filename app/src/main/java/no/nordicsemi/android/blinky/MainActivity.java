@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(deviceConnect){
             if(btStatus == TRUE){
+                btStatus = FALSE;
                 if(alraming == false){
                     alraming = true;
                     alramProcess();
@@ -233,42 +234,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void alramProcess(){
         // Do something in response to button click
-        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alram);
-        mediaPlayer.start(); // no need to call prepare(); create() does that for you
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
-
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                // TODO Auto-generated method stub
-                alraming = false;
-            }
-
-        });
-
-        Log.d("test", "alramProcess~~~~~");
-
-
-        //gpsTracker = new GpsTracker(MainActivity.this);
-
-        //double latitude = gpsTracker.getLatitude();
-        //double longitude = gpsTracker.getLongitude();
-        double latitude = gpslati;
-        double longitude = gpslong;
-
-        String address = getCurrentAddress(latitude, longitude);
-        //textview_address.setText(address);
-
-        //Toast.makeText(MainActivity.this, "현재위치 \n위도 " + latitude + "\n경도 " + longitude, Toast.LENGTH_LONG).show();
-
-        //LUHERO 위급상황 알림 : http://maps.google.com/?q=37.4730555,127.1003179
-
-
-        //String sms = "LUHERO 위급상황 알림 :" + latitude + "," + longitude;
-        String sms = "LUHERO 위급상황 알림 : http://maps.google.com/?q="+latitude + "," + longitude;
-
-
+        final int[] p11Test = {0};
+        int p12Test = 0;
+        final boolean[] forTest = {FALSE};
         SharedPreferences sharedPref = getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        int p11 = sharedPref.getInt("preset11", 5);
+        int p12 = sharedPref.getInt("preset12", 2);
         String pP1 = sharedPref.getString(getString(R.string.saved_p1_phone), "");
         String pP2 = sharedPref.getString(getString(R.string.saved_p2_phone), "");
         String pP3 = sharedPref.getString(getString(R.string.saved_p3_phone), "");
@@ -276,85 +247,137 @@ public class MainActivity extends AppCompatActivity {
         String pP5 = sharedPref.getString(getString(R.string.saved_p5_phone), "");
         String pP6 = sharedPref.getString(getString(R.string.saved_p6_phone), "");
 
-        if(pP1.equals("")){
+        //for(p12Test = 0;  p12Test < p12; p12Test++)
+        {
+            MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alram);
+            mediaPlayer.start(); // no need to call prepare(); create() does that for you
+            forTest[0] = TRUE;
 
-        } else {
-            try {
-                //전송
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(pP1, null, sms, null, null);
-                //Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                //Toast.makeText(getApplicationContext(), "SMS1 faild, please try again later!", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    // TODO Auto-generated method stub
+
+                    p11Test[0]++;
+                    forTest[0] = FALSE;
+
+                    //if(p11Test[0] >= p11)
+                        alraming = false;
+                    //else
+                        {
+                        try {
+                            Thread.sleep(10000);        // 1 min
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            });
+
+            Log.d("test", "alramProcess~~~~~");
+
+
+            //gpsTracker = new GpsTracker(MainActivity.this);
+
+            //double latitude = gpsTracker.getLatitude();
+            //double longitude = gpsTracker.getLongitude();
+            double latitude = gpslati;
+            double longitude = gpslong;
+
+            String address = getCurrentAddress(latitude, longitude);
+            //textview_address.setText(address);
+
+            //Toast.makeText(MainActivity.this, "현재위치 \n위도 " + latitude + "\n경도 " + longitude, Toast.LENGTH_LONG).show();
+
+            //LUHERO 위급상황 알림 : http://maps.google.com/?q=37.4730555,127.1003179
+
+
+            //String sms = "LUHERO 위급상황 알림 :" + latitude + "," + longitude;
+            String sms = "LUHERO 위급상황 알림 : http://maps.google.com/?q=" + latitude + "," + longitude;
+
+
+            if (pP1.equals("")) {
+
+            } else {
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(pP1, null, sms, null, null);
+                    //Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    //Toast.makeText(getApplicationContext(), "SMS1 faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
-        }
-        if(pP2.equals("")){
+            if (pP2.equals("")) {
 
-        } else {
-            try {
-                //전송
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(pP2, null, sms, null, null);
-                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "SMS2 faild, please try again later!", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+            } else {
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(pP2, null, sms, null, null);
+                    Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS2 faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
-        }
-        if(pP3.equals("")){
+            if (pP3.equals("")) {
 
-        } else {
-            try {
-                //전송
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(pP3, null, sms, null, null);
-                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "SMS3 faild, please try again later!", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+            } else {
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(pP3, null, sms, null, null);
+                    Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS3 faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
-        }
-        if(pP4.equals("")){
+            if (pP4.equals("")) {
 
-        } else {
-            try {
-                //전송
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(pP4, null, sms, null, null);
-                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "SMS4 faild, please try again later!", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+            } else {
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(pP4, null, sms, null, null);
+                    Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS4 faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
-        }
-        if(pP5.equals("")){
+            if (pP5.equals("")) {
 
-        } else {
-            try {
-                //전송
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(pP5, null, sms, null, null);
-                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "SMS5 faild, please try again later!", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+            } else {
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(pP5, null, sms, null, null);
+                    Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS5 faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
-        }
-        if(pP6.equals("")){
+            if (pP6.equals("")) {
 
-        } else {
-            try {
-                //전송
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(pP6, null, sms, null, null);
-                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "SMS6 faild, please try again later!", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
+            } else {
+                try {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(pP6, null, sms, null, null);
+                    Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS6 faild, please try again later!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
             }
-        }
 
+        }
     }
 
     public String getCurrentAddress( double latitude, double longitude) {

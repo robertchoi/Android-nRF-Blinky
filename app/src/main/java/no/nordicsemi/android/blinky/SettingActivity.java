@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,9 @@ public class SettingActivity extends AppCompatActivity {
         Button sl2Button = findViewById(R.id.sl2Button);
 
         EditText editTextNumber1 = findViewById(R.id.editTextNumber1);
+        editTextNumber1.setFilters(new InputFilter[]{ new InputFilterMinMax("1", "5")});
         EditText editTextNumber2 = findViewById(R.id.editTextNumber2);
+        editTextNumber2.setFilters(new InputFilter[]{ new InputFilterMinMax("1", "2")});
 
         final MaterialToolbar toolbar = findViewById(R.id.toolbarMain);
         /* toolbar.setTitle("LUHELO"); */
