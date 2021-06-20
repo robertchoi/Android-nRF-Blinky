@@ -123,6 +123,8 @@ public class BlinkyManager extends ObservableBleManager {
 										 final boolean pressed) {
 			log(LogContract.Log.Level.APPLICATION, "Button " + (pressed ? "pressed" : "released"));
 			buttonState.setValue(pressed);
+
+			((MainActivity)MainActivity.context_main).btStatus = pressed;
 		}
 
 		@Override

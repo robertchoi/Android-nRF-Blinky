@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
@@ -18,12 +19,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -52,14 +55,20 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_DEVICE = "no.nordicsemi.android.blinky.EXTRA_DEVICE";
 
+    public static Context context_main;
     NotificationManager manager;
     NotificationCompat.Builder builder;
     private static String CHANNEL_ID = "channel1";
     private static String CHANEL_NAME = "luhero_disconnect";
 
+    private double gpslati;
+    private double gpslong;
 
     private BlinkyViewModel viewModel;
     boolean deviceConnect  = FALSE;
+    public  boolean btStatus = FALSE;
+
+    private BroadcastReceiver broadcastReceiver;
 
     private GpsTracker gpsTracker;
     private CircleProgressBar mCustomProgressBar;
@@ -80,9 +89,13 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        context_main = this;
+
         final Intent intent = getIntent();
         device = intent.getParcelableExtra(EXTRA_DEVICE);
 
+        Intent i = new Intent(getApplicationContext(), GPS_Service.class);
+        startService(i);
 
 
         TextView tv2 = (TextView) findViewById(R.id.textView2);
@@ -152,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
                             if(alraming == false){
                                 alraming = true;
                                 alramProcess();
-                                alraming = false;
                             }
 
                         }
@@ -206,16 +218,43 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void btTest(){
+
+        if(deviceConnect){
+            if(btStatus == TRUE){
+                if(alraming == false){
+                    alraming = true;
+                    alramProcess();
+                }
+            }
+        }
+
+    }
+
     public void alramProcess(){
         // Do something in response to button click
         MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.alram);
         mediaPlayer.start(); // no need to call prepare(); create() does that for you
 
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
 
-        gpsTracker = new GpsTracker(MainActivity.this);
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                // TODO Auto-generated method stub
+                alraming = false;
+            }
 
-        double latitude = gpsTracker.getLatitude();
-        double longitude = gpsTracker.getLongitude();
+        });
+
+        Log.d("test", "alramProcess~~~~~");
+
+
+        //gpsTracker = new GpsTracker(MainActivity.this);
+
+        //double latitude = gpsTracker.getLatitude();
+        //double longitude = gpsTracker.getLongitude();
+        double latitude = gpslati;
+        double longitude = gpslong;
 
         String address = getCurrentAddress(latitude, longitude);
         //textview_address.setText(address);
@@ -244,9 +283,9 @@ public class MainActivity extends AppCompatActivity {
                 //전송
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(pP1, null, sms, null, null);
-                Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "전송 완료!", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "SMS1 faild, please try again later!", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "SMS1 faild, please try again later!", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
             }
         }
@@ -332,15 +371,15 @@ public class MainActivity extends AppCompatActivity {
                     7);
         } catch (IOException ioException) {
             //네트워크 문제
-            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
             return "지오코더 서비스 사용불가";
         } catch (IllegalArgumentException illegalArgumentException) {
-            Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
             return "잘못된 GPS 좌표";
 
         }
         if (addresses == null || addresses.size() == 0) {
-            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
             return "주소 미발견";
 
         }
@@ -423,15 +462,41 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        if (device != null) {
-            viewModel.connect(device);
+
+        // 서비스 종료하기
+        Log.d("test", "액티비티-서비스 RESUME 종료버튼클릭");
+        Intent intent = new Intent(
+                getApplicationContext(),//현재제어권자
+                MyService.class); // 이동할 컴포넌트
+        stopService(intent); // 서비스 종료
+
+        if(broadcastReceiver == null){
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    gpslong = intent.getDoubleExtra("glong",0.0);
+                    gpslati = intent.getDoubleExtra("glati", 0.0);
+                    //textView.append("count: "+cnt+"\n" +intent.getExtras().get("coordinates")+"\n");
+
+                }
+            };
         }
+        registerReceiver(broadcastReceiver,new IntentFilter("location_update"));
+
+
     }
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
+
+        Log.d("test", "액티비티-서비스 시작버튼클릭");
+        Intent intent = new Intent(
+                getApplicationContext(),//현재제어권자
+                MyService.class); // 이동할 컴포넌트
+        startService(intent); // 서비스 시작
+
+        btStatus = FALSE;
+
     }
 
     @Override
@@ -439,6 +504,20 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         //unbindService(mServiceConnection);
         //mBluetoothLeService = null;
+
+        // 서비스 종료하기
+        Log.d("test", "액티비티-서비스 종료버튼클릭");
+        Intent intent = new Intent(
+                getApplicationContext(),//현재제어권자
+                MyService.class); // 이동할 컴포넌트
+        stopService(intent); // 서비스 종료
+
+        Intent i = new Intent(getApplicationContext(), GPS_Service.class);
+        stopService(i);
+
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+        }
     }
 
     public void showNoti(){
@@ -458,6 +537,7 @@ public class MainActivity extends AppCompatActivity {
         //알림창 메시지
         builder.setContentText("연결이 끊어졌습니다.");
         //알림창 아이콘
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.icon));
         builder.setSmallIcon(R.drawable.icon);
         Notification notification = builder.build();
         //알림창 실행
